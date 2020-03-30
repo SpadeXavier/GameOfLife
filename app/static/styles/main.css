@@ -1,0 +1,47 @@
+.grid-btn {
+	width: 2%;
+	border: 2px solid black;
+}
+
+.nav-title {
+	padding-left: 10px;
+}
+
+#subtitle {
+	font-size: 1.3rem;
+	color: #757575;
+}
+
+.game-board {
+	padding-left: 20px;
+	padding-right: 20px;
+	overflow: auto;
+	white-space: nowrap;
+	padding-bottom: 1%;
+	width: 100%;
+}
+
+.option-dropdown {
+	color: #343434;
+	font-weight: 500;
+}
+
+@media screen and (min-width: 992px) { 
+	.sidenav {
+		width: 15%;
+	}
+}
+
+
+.browser-default {
+	width: 40%;
+	display: inline!important;
+}
+
+#X-mark {
+	font-size: 15px;
+}
+
+label {
+	display: block;
+}

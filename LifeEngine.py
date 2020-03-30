@@ -91,11 +91,28 @@ class LifeEngine:
                     if user == "x":
                         interactive = False
 
-
-
         if visual:
             print("-- Generation {} -- ".format(num_gens));
             print(self.lb)
+
+    def convertDictForJSON(self, curr_dict):
+        new_dict = {};
+        for pos,status in curr_dict.items():
+            # have to format position for json (can't be tuple so we make it a string) 
+            better_pos = str(pos[0]) + "," + str(pos[1])
+            new_dict[better_pos] = status
+
+        return new_dict
+
+    # for webpage to work 
+    def get_complete_simulation(self, num_gens=1):
+        complete_arr = []
+        complete_arr.append(self.convertDictForJSON(self._curr_dict))
+        for x in range(num_gens):
+            self.run_generation()
+            complete_arr.append(self.convertDictForJSON(self._curr_dict))
+
+        return complete_arr
 
 
 if __name__ == '__main__':
@@ -117,10 +134,11 @@ if __name__ == '__main__':
     for x in test:
         test_d[x] = "Alive";
 
-
+    oscillating_test = {(8,15): "Alive", (8,16): "Alive", (8,17): "Alive"}
     # running the engine 
-    engine = LifeEngine("28x60", penta) 
-    engine.simulate(num_gens=60, visual=True, interactive=False, time_delay=True)
+    engine = LifeEngine("28x60", oscillating_test) 
+    # engine.simulate(num_gens=60, visual=True, interactive=False, time_delay=True)
+    print(engine.get_complete_simulation(num_gens=10))
 
 
 

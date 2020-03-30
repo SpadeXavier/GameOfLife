@@ -1,0 +1,400 @@
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+
+  <title>Conway's Game of Life by XavierSpade</title>
+  <meta name="description" content="GameOfLife">
+  <meta name="author" content="SitePoint">
+  <!--Import Google Icon Font-->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+  <!--Import materialize.css-->
+  <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/materialize.css') }}">
+  <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/main.css') }}">
+  <!--Let browser know website is optimized for mobile-->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+  <script
+  src="https://code.jquery.com/jquery-3.4.1.min.js"
+  integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+  crossorigin="anonymous"></script>
+
+  <script
+  src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"
+  integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU="
+  crossorigin="anonymous"></script>
+
+  <style>
+
+    {{ styles }}
+  </style>
+
+</head>
+
+<body>
+
+<!-- 
+  {% if username %}
+  <h1> Welcome {{ username }}!</h1>
+  {% else %} 
+  <h1> Welcome user!</h1>
+  {% endif %} 
+
+--> 
+
+<div class="container">
+
+
+<ul id="nav-mobile" class="sidenav sidenav-fixed">
+
+  <li class="nav-title center-align"><h5> Conway's Game Of Life<br><span id="subtitle">Rendered by VK</span></h5></li>
+  <li class="">
+    <div style="display: none;" class="progress">
+      <div class="indeterminate"></div>
+    </div>
+  </li>
+  <li class="">
+    <a id="submit-arr" class="waves-effect waves-teal btn-flat">Run Simulation</a>
+  </li>
+  <li class="">
+    <a id="clear-arr" class="waves-effect waves-teal btn-flat">Clear Arrangement</a>
+  </li>
+  <li class="">
+
+    <ul class="collapsible popout">
+      <li class="z-depth-0 option-dropdown">
+        <div class="collapsible-header">Options<i class="material-icons">arrow_drop_down</i></div>
+        <div class="collapsible-body">
+        </div>
+      </li>
+    </ul>
+  </li>
+    <form style="display: none;" class="option-dropdown" action="#">
+      <span style="font-size: 14px;" class="center-align">Number of Generations:</span>
+      <p class="range-field">
+        <input type="range" id="gen_picker" min="0" max="100" />
+      </p>
+    </form>
+    <div style="display: none;" class="grid-size-option">
+      <label>Grid Size</label>
+          <select id="row-selector" class="browser-default">
+            <!-- this will be populated by js !--> 
+          </select>
+          <i id="X-mark" class="material-icons">close</i>
+          <select id="column-selector" class="browser-default">
+             <!-- this will be populated by js !--> 
+          </select>
+    </div>
+</ul>
+
+
+  <div class="game-board">
+
+    <br>
+    {% for row_num in row_size %}
+      {% for col_num in col_size %}
+      <a id = "x{{ row_num }}-{{ col_num }}" class="waves-effect waves-teal btn-flat grid-btn"></a>
+      {% endfor %}
+      <br>
+    {% endfor %}
+  </div>
+</div>
+
+
+  <script src="{{url_for('static', filename='materialize.js')}}"></script>
+  <script src="{{url_for('static', filename='main.js')}}"></script>
+
+  <script> 
+    $(document).ready(function() {
+
+      // clear sessionstorage values 
+      sessionStorage.setItem("alive_arr", JSON.stringify([]))
+      sessionStorage.setItem("run_status", "false")
+
+      // -- global variables 
+      var full_data = {};   // the {pos: status} dictionary py script returns that runSimulation uses 
+      var isPaused = false;   // the boolean setInterval uses to determine to keep run simulation or not 
+      var boardChanged = false; // used to see if should just resume or resend data 
+          
+      {% for id_name in ids_alive %}
+        $("{{ id_name }}").addClass("teal lighten-2");
+      {% endfor %}
+
+      row_size = 0;
+      col_size = 0;
+      {% for row_num in row_size %}
+        row_size++;
+      {% endfor %}
+      {% for col_num in col_size %}
+        col_size++;
+      {% endfor %}
+
+      function redrawGrid(new_row_size, new_col_size) {
+        $(".game-board").empty()
+        $(".game-board").append("<br>");
+        for(var i = 0; i < new_row_size; i++) {
+            for(var j = 0; j< new_col_size; j++) {
+              var el_to_append = "<a id = x" + i + "-" + j + " class=\"waves-effect waves-teal btn-flat grid-btn\"></a>"
+                $(".game-board").append(el_to_append)
+            }
+            $(".game-board").append("<br>");
+        }
+
+        // -- readd the ones that were alive to board 
+        addAliveToBoard();
+        // -- add functionality to the grid buttons again 
+        addGridBtnFunctionality();
+      }
+
+      // -- add the rows and column size values to the selectors in option 
+      var minimum_value = 5;
+      var maximum_value = 100;
+      var increment = 5;
+      for(var i = minimum_value; i <= maximum_value; i+= increment) {
+        if(i == row_size) {
+          $("#row-selector").append("<option selected=\"selected\" value=\"" + i + "\">" + i + "</option>")
+          continue;
+        }
+       if(i == col_size) {
+          $("#column-selector").append("<option selected=\"selected\" value=\"" + i + "\">" + i + "</option>")
+          continue;
+        }
+        $("#row-selector").append("<option value=\"" + i + "\">" + i + "</option>")
+        $("#column-selector").append("<option value=\"" + i + "\">" + i + "</option>")
+      }
+
+
+      // -- redraw board to user's options when options changed 
+      $("#row-selector").on('change', function() {
+        redrawGrid($(this).val(), $("#column-selector").val())
+      })
+      $("#column-selector").on('change', function() {
+        redrawGrid($("#row-selector").val(), $(this).val())
+      })
+
+      var interval_id = null;
+      
+      // when button is clicked save it in storage 
+      function addGridBtnFunctionality() {
+        $(".grid-btn").click(function() {
+
+          boardChanged = true;
+          var current_arr = JSON.parse(sessionStorage.getItem("alive_arr"));
+          // if already was clicked 
+          if(current_arr.includes(this.id)) {
+            $(this).removeClass("teal lighten-2")
+            current_arr.splice(current_arr.indexOf(this.id))
+          }
+          // if isn't highlighted 
+          else {
+            $(this).addClass("teal lighten-2")
+            current_arr.push(this.id)
+          }
+          console.log(current_arr)
+          sessionStorage.setItem("alive_arr", JSON.stringify(current_arr))
+        })
+      }
+
+      addGridBtnFunctionality();
+
+      function addAliveToBoard() {
+        var alive_arr = JSON.parse(sessionStorage.getItem("alive_arr"))
+        console.log(alive_arr)
+        for(var pos of alive_arr) {
+          console.log("#" + pos)
+          $("#" + pos).addClass("teal lighten-2");
+        }
+      }
+
+
+      function resetBoard() {
+        
+        window.clearInterval(interval_id)
+        $("#submit-arr").text("Run Simulation")
+        $(".grid-btn").removeClass("teal lighten-2");
+        $("#generation-counter").fadeOut("normal", function() {
+          $(this).remove();
+        })
+        sessionStorage.setItem("alive_arr", JSON.stringify([]))
+
+    }
+
+      function pauseBoard() {
+        isPaused = true;
+        addGridBtnFunctionality();
+      }
+      function resumeBoard() {
+        isPaused = false;
+      }
+
+
+    $("#clear-arr").click(function() {
+      resetBoard();
+    })
+
+    function sendData() {
+      // -- anytime new data is being sent don't let them click board 
+      $(".grid-btn").off()
+      console.log("Sending data...")
+
+      // -- add loading bar 
+      $(".progress").fadeIn();
+
+
+      var num_gens = $("#gen_picker").val()
+      console.log(num_gens)
+
+      // send generations along with the alive_arr 
+      gens_and_alive_arr = JSON.parse(sessionStorage.getItem("alive_arr"))
+      gens_and_alive_arr.unshift(num_gens)
+      console.log(gens_and_alive_arr)
+
+
+      fetch('/hello', {
+        method: 'POST', 
+
+        body: JSON.stringify(gens_and_alive_arr)
+      }).then(function(response) {
+        return response.text();
+      }).then(function (text) {
+        console.log('POST response: ')
+        console.log(text);
+      });
+
+      setTimeout(function() {
+        fetch('/hello').then(function(response) {
+          console.log("GOT HERE")
+          return response.json();
+        }).then(function (json) {
+          console.log('GET response as JSON:');
+          console.log(json)
+          full_data = json
+          runSimulation(full_data);
+
+          // -- remove loading bar 
+          $(".progress").fadeOut();
+        })
+      }, 1000);
+    }
+
+    function addBoardtoAlive() {
+      // change new alive_arr to whatever is on the board 
+      var new_alive_arr = []
+      $(".teal").each(function() {
+        new_alive_arr.push(this.id)
+      })
+      console.log(new_alive_arr)
+      sessionStorage.setItem("alive_arr", JSON.stringify(new_alive_arr))
+    }
+
+    $("#submit-arr").click(function() {
+      var run_status = sessionStorage.getItem("run_status")
+      console.log("When clicked the board was running: " + run_status)
+
+      if(run_status == "true") {
+        sessionStorage.setItem("run_status", "false");
+        pauseBoard();
+        if($("#submit-arr").text() == "End Simulation") {
+          $("#generation-counter").fadeOut("normal", function() {
+            $(this).remove();
+          })
+          $("#submit-arr").text("Run Simulation")
+          sessionStorage.setItem("run_status", false);
+          isPaused = false;
+        }
+        else {
+          $("#submit-arr").text("Resume Simulation")
+        }
+        $("#clear-arr").removeClass("disabled")
+
+        addBoardtoAlive();
+
+      }
+      else {
+
+        sessionStorage.setItem("run_status", "true");
+        $("#submit-arr").text("Pause Simulation")
+        $("#clear-arr").addClass("disabled")
+
+        // -- if it is simply paused then resume 
+        if(isPaused) {
+          // -- if the board was changed after pause we have to resend data 
+          if(boardChanged) {
+            sendData();
+
+            // -- remove old gen counter 
+            $("#generation-counter").fadeOut("normal", function() {
+              $(this).remove();
+            })
+            // -- remove old interval 
+            window.clearInterval(interval_id)
+          }
+          else {
+            console.log("Resuming...")
+            resumeBoard();
+          }
+        }
+
+        else {
+          sendData();
+        }
+      }
+
+      // -- reset boardChanged variable 
+      boardChanged = false;
+    })
+
+    function runSimulation(full_data) {
+      console.log("SIMULATION CALLED")
+      console.log(full_data)
+      // -- if this function explicitly called that means new data was submitted so resume interval 
+      isPaused = false
+
+      var counter = 0;
+
+      $("<li id=\"generation-counter\" class=\"center-align\"><b>Gen: " + 0  + "</b></li>").insertAfter(".nav-title")
+      interval_id = window.setInterval(function(){
+
+        if(!isPaused) {
+          // -- don't let them click grid-button 
+          $(".grid-btn").off() 
+
+          // -- when simulation ends organically  
+          if(counter == full_data.length-1) {
+            window.clearInterval(interval_id);
+            $("#submit-arr").text("End Simulation")
+          }
+
+          // -- while simulation is running 
+          $("#generation-counter").html("<b>Gen: " + counter  + "</b>")
+          var curr_dict = full_data[counter]
+          
+          for (var pos in curr_dict) {
+              
+              var row_pos = pos.split(",")[0]
+              var col_pos = pos.split(",")[1] 
+              var id = "#x" + row_pos + "-" + col_pos
+            
+            if(curr_dict[pos] == "Dead") {
+              $(id).removeClass("teal lighten-2")
+            }
+            if(curr_dict[pos] == "Alive") {
+              $(id).addClass("teal lighten-2")
+            }
+
+
+          }
+
+          counter ++; 
+
+        }
+
+      }, 1000);
+    }
+
+  });
+      
+  </script>
+
+</body>
+</html>

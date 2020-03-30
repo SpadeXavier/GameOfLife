@@ -1,0 +1,43 @@
+
+<script>
+      // adujst grid to window width 
+      function redrawGrid(new_row_size, new_col_size) {
+        $(".game-board").empty()
+        $(".game-board").append("<br>");
+        for(var i = 0; i < new_row_size; i++) {
+            for(var j = 0; j< new_col_size; j++) {
+              var el_to_append = "<a id = x" + i + "-" + j + " class=\"waves-effect waves-teal btn-flat grid-btn\"></a>"
+                $(".game-board").append(el_to_append)
+            }
+            $(".game-board").append("<br>");
+        }
+      }
+
+      function adjustGridToScreen() {
+        var width = $(window).width();
+        var height = $(window).height();
+
+        var grid_height = 15;  // this is row size 
+        var grid_width = 0;   // this is width size 
+
+        console.log(width)
+        console.log(height)
+
+        grid_width = 30 - (Math.round((1800 - width) / 100))
+
+        redrawGrid(grid_height, grid_width);
+        // if(width > 0)
+      }
+
+      $(window).resize(function() {
+        var width = $(window).width();
+        var height = $(window).height();
+        
+        console.log(width);
+        console.log(height)
+        adjustGridToScreen();
+      });
+
+      // adjustGridToScreen();
+
+</script>
