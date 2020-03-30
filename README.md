@@ -15,8 +15,10 @@ Logic for game is written in **LifeBoard.py** and **LifeEngine.py**<br>
 **LifeEngine.py:** uses LifeBoard.py to check the four rules of Conway's game and run the simulation <br>
 
 # Visualization 
-A webpage is also provided for visualization which uses flask as the framework and sends request to the server to obtain data from the python scripts over how the simulation should progress<br>
-Visualization can be done through the terminal by running LifeEngine.py
+A *webpage* is also provided for visualization which uses flask as the framework
+- sends request to the server to obtain data from the python scripts over how the simulation should progress<br>
+
+Visualization can be done through the terminal by running `python LifeEngine.py`
 
 *NOTE: NO game logic is written in the javascript for the webpage; all data is requested from the python script* 
 
