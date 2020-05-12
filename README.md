@@ -18,7 +18,24 @@ Logic for game is written in **LifeBoard.py** and **LifeEngine.py**<br>
 A *webpage* is also provided for visualization which uses flask as the framework
 - sends request to the server to obtain data from the python scripts over how the simulation should progress<br>
 
-Visualization can be done through the terminal by running `python LifeEngine.py`
+Visualization can optionally be done through terminal alone by running `python LifeEngine.py`
+- ensure the termcolor package is installed, if not run `pip install termcolor`
 
 *NOTE: NO game logic is written in the javascript for the webpage; all data is requested from the python script* 
+# Usage
+Flask activation instructions were extracted from:   
+https://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-i-hello-world
+
+To start local flask server to run the webpage: 
+1. Create a virtual environment by running `python -m venv ./venv`
+2. Activate the virtual environment by running `source venv/bin/activate`
+3. To download the required python packages run `pip install -r requirements.txt` 
+4. If your FLASK_APP environmental variable is not set you must set it by running `export FLASK_APP=lifepage.py`
+	* Optionally, you can run `pip install python-dotenv` and create a .flaskenv file in the top-level directory with the file having one line: FLASK_APP=microblog.py
+	* This removes the need of having to use export every new terminal session 
+5. Then simply run `flask run` to start the server 
+6. Enjoy!
+
+
+
 
