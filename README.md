@@ -20,6 +20,7 @@ A *webpage* is also provided for visualization which uses flask as the framework
 
 Visualization can optionally be done through terminal alone by running `python LifeEngine.py`
 - ensure the termcolor package is installed, if not run `pip install termcolor`
+- you can change variables in the file to test different configurations, generation numbers, etc...
 
 *NOTE: NO game logic is written in the javascript for the webpage; all data is requested from the python script* 
 # Usage

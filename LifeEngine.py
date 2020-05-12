@@ -116,7 +116,7 @@ class LifeEngine:
 
 
 if __name__ == '__main__':
-    # different state configurations 
+    # different state configurations you can try
     start = {(0,0): "Alive", (2,3): "Dead"}
     simple = {(15,30): "Alive", (15,31): "Alive", (16,32): "Alive"}    # all die out 
     stable = {(15,30): "Alive", (15,31): "Alive", (16,31): "Alive"}    # stable population emerges 
@@ -135,10 +135,20 @@ if __name__ == '__main__':
         test_d[x] = "Alive";
 
     oscillating_test = {(8,15): "Alive", (8,16): "Alive", (8,17): "Alive"}
+    # -- Variables you can change 
+    config = oscillating_test       # Starting configuration which you can choose from arrays above 
+    grid_size = "28x60"             # Board size in which simulation will be conducted on 
+                                    # (change this to smaller size if you can't see the visualization)
+    num_gens = 60                   # Number of cycles to simulate through 
+    visual = True                   # Print output to terminal screen 
+    interactive = False             # Click through each generation 
+    time_delay = True               # If True will not skip to last generation but 
+                                    # will show each generation with slight time delay
+    
     # running the engine 
-    engine = LifeEngine("28x60", oscillating_test) 
-    # engine.simulate(num_gens=60, visual=True, interactive=False, time_delay=True)
-    print(engine.get_complete_simulation(num_gens=10))
+    engine = LifeEngine(grid_size, config)
+    engine.simulate(num_gens=num_gens, visual=visual, interactive=interactive, time_delay=time_delay)
+    # print(engine.get_complete_simulation(num_gens=10))
 
 
 
