@@ -9,6 +9,7 @@ $(document).ready(function(){
     $(".collapsible-header").click(function() {
     	$('form').fadeToggle();
     	$('.grid-size-option').fadeToggle();
+    	$('.speed-option').fadeToggle();
     })
 
 

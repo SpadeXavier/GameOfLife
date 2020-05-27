@@ -35,6 +35,7 @@ To start local flask server to run the webpage:
 	* Optionally, you can run `pip install python-dotenv` and create a .flaskenv file in the top-level directory with the file having one line: FLASK_APP=microblog.py
 	* This removes the need of having to use export every new terminal session 
 5. Then simply run `flask run` to start the server 
+	* Run `export FLASK_ENV=development` if you want to run the server and have it reload for code changes
 6. Enjoy!
 
 

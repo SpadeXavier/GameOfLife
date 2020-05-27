@@ -85,6 +85,18 @@
              <!-- this will be populated by js !--> 
           </select>
     </div>
+    <div style="display: none;" class="speed-option">
+      <br>
+     <label>Speed</label>
+          <select id="speed-selector" class="browser-default">
+            <option value="1000" selected="selected">1x</option>
+            <option value="500">2x</option>
+            <option value="250">3x</option>
+            <option value="125">4x</option>
+
+          </select>
+    </div>
+
 </ul>
 
 
@@ -115,7 +127,8 @@
       var full_data = {};   // the {pos: status} dictionary py script returns that runSimulation uses 
       var isPaused = false;   // the boolean setInterval uses to determine to keep run simulation or not 
       var boardChanged = false; // used to see if should just resume or resend data 
-          
+      var interval_speed = 1000; // setInterval length in ms 
+
       {% for id_name in ids_alive %}
         $("{{ id_name }}").addClass("teal lighten-2");
       {% endfor %}
@@ -153,10 +166,13 @@
       for(var i = minimum_value; i <= maximum_value; i+= increment) {
         if(i == row_size) {
           $("#row-selector").append("<option selected=\"selected\" value=\"" + i + "\">" + i + "</option>")
+          $("#column-selector").append("<option value=\"" + i + "\">" + i + "</option>")
+
           continue;
         }
        if(i == col_size) {
           $("#column-selector").append("<option selected=\"selected\" value=\"" + i + "\">" + i + "</option>")
+          $("#row-selector").append("<option value=\"" + i + "\">" + i + "</option>")
           continue;
         }
         $("#row-selector").append("<option value=\"" + i + "\">" + i + "</option>")
@@ -172,8 +188,25 @@
         redrawGrid($("#row-selector").val(), $(this).val())
       })
 
+      // -- change speed when option changes 
+      $("#speed-selector").on('change', function() {
+        console.log("Speed changed to: " + $(this).val() + " ms")
+         interval_speed = $(this).val();
+      })
+
       var interval_id = null;
-      
+
+      // -- undisable button 
+      function addOptionFunctionality() {
+        $("#speed-selector").removeAttr("disabled");
+        $("#gen_picker").removeAttr("disabled");
+      }
+
+      function removeOptionFunctionality() {
+        $("#speed-selector").attr("disabled", "");
+        $("#gen_picker").attr("disabled", "");
+      }
+
       // when button is clicked save it in storage 
       function addGridBtnFunctionality() {
         $(".grid-btn").click(function() {
@@ -215,6 +248,7 @@
         $("#generation-counter").fadeOut("normal", function() {
           $(this).remove();
         })
+        addOptionFunctionality();
         sessionStorage.setItem("alive_arr", JSON.stringify([]))
 
     }
@@ -225,6 +259,7 @@
       }
       function resumeBoard() {
         isPaused = false;
+        removeOptionFunctionality();
       }
 
 
@@ -235,6 +270,7 @@
     function sendData() {
       // -- anytime new data is being sent don't let them click board 
       $(".grid-btn").off()
+      removeOptionFunctionality();
       console.log("Sending data...")
 
       // -- add loading bar 
@@ -389,7 +425,7 @@
 
         }
 
-      }, 1000);
+      }, interval_speed);
     }
 
   });
